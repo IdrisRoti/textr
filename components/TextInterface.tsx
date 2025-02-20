@@ -6,6 +6,33 @@ import { PiTranslateLight } from "react-icons/pi";
 
 import {motion} from "motion/react"
 
+const languageSelect = [
+    {
+        label: "English",
+        value: "en"
+    },
+    {
+        label: "Portuguese",
+        value: "pt"
+    },
+    {
+        label: "Spanish",
+        value: "es"
+    },
+    {
+        label: "Russian",
+        value: "ru"
+    },
+    {
+        label: "Turkish",
+        value: "tr"
+    },
+    {
+        label: "French",
+        value: "fr"
+    },
+]
+
 const detectLang = async (LangToDetect: string) => {
     // @ts-expect-error type of self.ai is unknown
     const languageDetectorCapabilities = await self.ai.languageDetector.capabilities();
@@ -132,13 +159,35 @@ const summerizeText = async () => {
     console.log("summarizer", summarizer)
 }
 
+const getLanguage = (shortCode: string) => {
+    switch (shortCode) {
+        case "en":
+            return "English"
+        case "pt":
+            return "Portuguese"
+        case "es":
+            return "Spanish"
+        case "ru":
+            return "Russian"
+        case "tr":
+            return "Turkish"
+        case "fr":
+            return "French"
+    
+        default:
+            break;
+    }
+}
+
 const TextInterface = () => {
     const [inputText, setInputText] = useState("");
     const [chats, setChats] = useState<{
         id: number, 
         initText: string,
         translatedText?: string,
-        lang: string
+        lang: string,
+        error?: string,
+        translationLang: string
     }[]>([]);
 
     const latestMessageRef = useRef<HTMLDivElement | null>(null)
@@ -157,40 +206,32 @@ const TextInterface = () => {
             e.preventDefault();
 
             const lang:string = await detectLang(inputText);
-            console.log("Language detected", lang);
-            setChats(prev => [...prev, {id: prev.length+1, initText: inputText, lang}])
+            const FullLang = getLanguage(lang);
+            console.log("Language detected", FullLang);
+            setChats(prev => [...prev, {id: prev.length+1, initText: inputText, lang, translationLang: "en"}])
         }
 
-        const translate = async (lang: string, text: string, id: number) => {
-            const result = await translateText(lang, "es", text);
+        const translate = async (lang: string, text: string, id: number, targetLang: string) => {
+            const result = await translateText(lang, targetLang, text);
             setChats(prev => prev.map((chat) => chat.id === id ? {...chat, translatedText: result} : chat))
             console.log("result", result);
         }
 
+        const summerize = (id: number) => {
+            setChats(prev => prev.map((chat) => chat.id === id ? {...chat, error: "Oops! Sorry, summerization is not availaible at this time, try again next time."} : chat))
+        }
+
   return (
     <div className='w-full px-4 max-w-2xl mx-auto h-screen relative py-5 space-y-5'>
-        <div className="flex flex-col gap-10 max-h-[65vh] overflow-y-auto">
+        <div className="flex flex-col gap-10 max-h-[65vh] overflow-y-auto px-4">
             {
                 chats.map((chat) => (
                     <div 
                         ref={chat.id === chats.length ? latestMessageRef : null}
-                        className='relative flex flex-col gap-3 items-start w-[90%] even:ml-auto' 
+                        className='relative flex flex-col gap-3 items-start' 
                         key={chat.id}
                     >
-                        {
-                            chat.translatedText ? (
-                                <p className='p-3 bg-slate-50 font-medium rounded-xl'>{chat.translatedText.split("").map((char, i) => (
-                                    <motion.span 
-                                        initial={{
-                                            opacity: 0
-                                        }}
-                                        animate={{
-                                            opacity: 1,
-                                            transition: {delay: .02*i}
-                                        }}
-                                        key={i}>{char}</motion.span>
-                                ))}</p>
-                            ) : (
+                        <div className="ml-auto w-[80%]">
                                 <motion.p 
                                     initial={{
                                         y: 20
@@ -199,13 +240,55 @@ const TextInterface = () => {
                                         y: 0,
                                         transition: { ease: "easeInOut"}
                                     }}
-                                    className='p-3 bg-slate-50 font-medium rounded-xl'>{chat.initText}</motion.p>
-                            )
+                                    className='p-3 bg-slate-50 font-medium rounded-xl'
+                                >
+                                        {chat.initText}
+                                        <small className='block mt-3 font-thin'>Language detected: {getLanguage(chat.lang)}</small>
+                                </motion.p> 
+                                {chat.error && <small className='text-red-600'>{chat.error}</small>}
+                                <div className="flex items-center gap-3 mt-3"> 
+                                    <select
+                                        onChange={(e) => setChats((prev) => prev.map((ch) => ch.id === chat.id  ? {...ch, translationLang: e.target.value} : ch))}
+                                        className='bg-transparent hover:bg-red-600/5 transition duration-500 outline-none border rounded-full px-4 py-1 text-sm flex items-center gap-2 ml-auto'>
+                                        {
+                                            languageSelect.map((lang) => (
+                                                <option key={lang.value} value={lang.value}>{lang.label}</option>
+                                            ))
+                                        }
+                                    </select>   
+                                    <button onClick={() => translate(chat.lang, chat.initText,chat.id, chat.translationLang)} className='bg-transparent hover:bg-red-600/5 transition duration-500 outline-none border rounded-full px-4 py-1 text-sm flex items-center gap-2'>
+                                        <PiTranslateLight className='text-red-600' />
+                                        <span>Translate</span>
+                                    </button>  
+                                    {
+                                        chat.initText.length > 150 && (
+                                            <button onClick={() => summerize(chat.id)} className='bg-transparent hover:bg-green-600/5 transition duration-500 outline-none border rounded-full px-4 py-1 text-sm flex items-center gap-2'>
+                                                <PiTranslateLight className='text-green-600' />
+                                                <span>Summerize</span>
+                                            </button>
+                                        )
+                                    }        
+                                </div>            
+                        </div>
+                        {
+                            chat.translatedText && 
+                            <p className='p-3 bg-slate-200/80 font-medium rounded-xl w-[80%]'>
+                                <small className='block mb-3 font-thin'>Translated text</small>
+                                {chat.translatedText.split("").map((char, i) => (
+                                    <motion.span 
+                                        initial={{
+                                            opacity: 0
+                                        }}
+                                        animate={{
+                                            opacity: 1,
+                                            transition: {delay: .02*i}
+                                        }}
+                                        key={i}>
+                                            {char}
+                                    </motion.span>
+                                ))}
+                            </p>
                         }
-                        <button onClick={() => translate(chat.lang, chat.initText,chat.id)} className='bg-transparent hover:bg-red-600/5 transition duration-500 outline-none border rounded-full px-4 py-1 text-sm flex items-center gap-2'>
-                            <PiTranslateLight className='text-red-600' />
-                            <span>Translate</span>
-                        </button>
                     </div>
                 ))
             }
@@ -218,4 +301,4 @@ const TextInterface = () => {
   )
 }
 
-export default TextInterface
+export default TextInterface;
