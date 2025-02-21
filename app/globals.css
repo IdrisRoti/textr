@@ -13,3 +13,12 @@
     --foreground: #ededed;
   }
 }
+
+.scroll-bar-y::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scroll-bar-y::-webkit-scrollbar-thumb {
+  background-color: rgb(135, 135, 224);
+  border-radius: 5px;
+}

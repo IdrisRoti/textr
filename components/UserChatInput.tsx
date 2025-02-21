@@ -4,6 +4,7 @@ import {motion} from "motion/react";
 import { languageSelect } from "@/constants";
 import { getLanguage, translateText } from "@/lib/utils";
 import { TChat } from "@/types";
+import { BiPen } from "react-icons/bi";
 
 type TUserChatInput = {
     chat: TChat;
@@ -45,21 +46,21 @@ const UserChatInput = ({chat, setChats}: TUserChatInput) => {
     <div className="flex items-center gap-3 mt-3"> 
         <select
             onChange={(e) => setChats((prev) => prev.map((ch) => ch.id === chat.id  ? {...ch, translationLang: e.target.value} : ch))}
-            className='bg-transparent hover:bg-red-600/5 transition duration-500 outline-none border rounded-full px-4 py-1 text-sm flex items-center gap-2 ml-auto'>
+            className='cursor-pointer bg-transparent hover:bg-purple-300/20 transition duration-500 outline-none border rounded-full px-4 py-1 text-sm flex items-center gap-2 ml-auto'>
             {
                 languageSelect.map((lang) => (
                     <option key={lang.value} value={lang.value}>{lang.label}</option>
                 ))
             }
         </select>   
-        <button onClick={() => translate(chat.lang, chat.initText,chat.id, chat.translationLang)} className='bg-transparent hover:bg-red-600/5 transition duration-500 outline-none border rounded-full px-4 py-1 text-sm flex items-center gap-2'>
+        <button onClick={() => translate(chat.lang, chat.initText,chat.id, chat.translationLang)} className='bg-transparent hover:bg-red-300/10 transition duration-500 outline-none border rounded-full px-4 py-1 text-sm flex items-center gap-2'>
             <PiTranslateLight className='text-red-600' />
             <span>Translate</span>
         </button>  
         {
             chat.initText.length > 150 && (
                 <button onClick={() => summerize(chat.id)} className='bg-transparent hover:bg-green-600/5 transition duration-500 outline-none border rounded-full px-4 py-1 text-sm flex items-center gap-2'>
-                    <PiTranslateLight className='text-green-600' />
+                    <BiPen className='text-green-600' />
                     <span>Summerize</span>
                 </button>
             )
