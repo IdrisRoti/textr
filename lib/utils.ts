@@ -61,9 +61,12 @@ export const translateText = async (sourceLang: string, targetLang: string, Text
 
     let translator;
 
+    if(sourceLang === targetLang){
+        toast.error(`Language is already in ${getLanguage(sourceLang)}`);
+    }
+
     if (canTranslate === "no"){
         // The language translator isn't usable.
-        toast.error("Looks like Translation is not allowed on this device")
         return;
     }
 
