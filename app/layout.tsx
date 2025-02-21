@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 
 // import Head from "next/head"
 import "./globals.css";
+import Head from "next/head";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,9 +27,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      {/* <Head>
-      <meta http-equiv="origin-trial" content="ApywZEcawPu3bp6OLLTdoGZKtPjN5sKcNOYQ7FrAJbcOp/vfx7SNIZu8Zxj9gqcIPXzkGd5/KiS1HpvUvKee5gwAAABVeyJvcmlnaW4iOiJodHRwOi8vbG9jYWxob3N0OjMwMDAiLCJmZWF0dXJlIjoiQUlTdW1tYXJpemF0aW9uQVBJIiwiZXhwaXJ5IjoxNzUzMTQyNDAwfQ==" />
-      </Head> */}
+      <Head>
+        <meta 
+          httpEquiv="origin-trial" 
+          content={process.env.TRANSLATOR_API_TOKEN}
+        />
+        <meta 
+          httpEquiv="origin-trial" 
+          content={process.env.LANGUAGE_DETECTOR_API_TOKEN}
+        />
+      </Head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
