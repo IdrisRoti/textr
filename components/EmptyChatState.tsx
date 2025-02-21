@@ -20,7 +20,7 @@ const EmptyChatState = () => {
             <PiTranslateLight className="text-purple-600" />
             <span>Textr</span>
         </motion.h1>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col md:flex-row items-center gap-4">
             {
                 functionsArr.map((func, i) => (
                     <motion.p 
