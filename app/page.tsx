@@ -1,7 +1,7 @@
-import TextInterface from "@/components/TextInterface";
+import ChatInterface from "@/components/ChatInterface";
 
 export default async function Home() {
   return (
-    <TextInterface />
+    <ChatInterface />
   );
 }
